@@ -18,7 +18,7 @@ extends Module {
     protected float hudWidth;
     protected float hudHeight;
     @Getter
-    private boolean dragging = true;
+    private boolean dragging = false;
     @Getter @Setter
     private float dragOffsetX;
     @Getter @Setter
@@ -37,7 +37,7 @@ extends Module {
 
     public boolean mousePressed(int mouseX, int mouseY, int button) {
         if (this.isHovered(mouseX, mouseY) && button == 0) {
-            this.visible = true;
+            this.dragging = true;
             this.dragOffsetX = (float)mouseX - this.getX();
             this.dragOffsetY = (float)mouseY - this.getY();
             return true;
@@ -55,7 +55,7 @@ extends Module {
     }
 
     public void stopDragging() {
-        this.setEnabled(false);
+        this.dragging = false;
     }
 
     @Generated
