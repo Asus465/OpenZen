@@ -329,9 +329,9 @@ extends HudElement {
             float iconX = x + width - 5.0f - this.maxWidth;
             float titleX = iconX - 3.0f - this.totalHeight;
             GlHelper.drawTextWithShadow("Hotkeys", titleX, headerTextY, this.nameFont, this.disabledPaint);
-            GlHelper.drawTextWithShadow("", iconX, headerTextY + 1.0f, this.bindFont, this.disabledPaint);
+            GlHelper.drawTextWithShadow("\uE1C6", iconX, headerTextY + 1.0f, this.bindFont, this.disabledPaint);
         } else {
-            GlHelper.drawTextWithShadow("", x + 5.0f, headerTextY + 1.0f, this.bindFont, this.disabledPaint);
+            GlHelper.drawTextWithShadow("\uE1C6", x + 5.0f, headerTextY + 1.0f, this.bindFont, this.disabledPaint);
             GlHelper.drawTextWithShadow("Hotkeys", x + 5.0f + this.maxWidth + 3.0f, headerTextY, this.nameFont, this.disabledPaint);
         }
         if (this.rowList.isEmpty()) {
@@ -410,7 +410,7 @@ extends HudElement {
                 }
                 if (row.keyName == null) {
                     float iconX = keyBoxX + (rowH - this.visibleHeight) / 2.0f;
-                    GlHelper.drawTextWithShadow("", iconX, keyTextY, this.bindFont, this.disabledPaint);
+                    GlHelper.drawTextWithShadow("\uE9F6", iconX, keyTextY, this.bindFont, this.disabledPaint);
                     continue;
                 }
                 FontRenderer fontRenderer = row.getFittingFont(this.keyFont, rowH - 5.0f);

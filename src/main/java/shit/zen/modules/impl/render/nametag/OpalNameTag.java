@@ -174,11 +174,9 @@ public class OpalNameTag extends NameTagStyle {
                 String distanceText = distance + "m";
                 String nameIcon = "";
                 String displayName = entity.getDisplayName().getString();
-                String decoded = this.getDecodedName(player.getName().getString());
                 String teamSuffix = "";
-                String decodedSuffix = decoded != null ? " (" + decoded + ")" : "";
                 int health = Math.round(player.getHealth());
-                String healthIcon = "";
+                String healthIcon = "\uE87D";
                 String healthText = String.valueOf(health);
                 int absorb = Math.round(player.getAbsorptionAmount());
                 String absorbText = absorb > 0 ? String.valueOf(absorb) : "";
@@ -188,8 +186,7 @@ public class OpalNameTag extends NameTagStyle {
                 float nameIconW = this.iconFont.getBounds(nameIcon).getWidth();
                 float displayW = this.mainFont.getBounds(displayName).getWidth();
                 float teamW = teamSuffix.isEmpty() ? 0.0f : this.mainFont.getBounds(teamSuffix).getWidth();
-                float decodedW = decodedSuffix.isEmpty() ? 0.0f : this.mainFont.getBounds(decodedSuffix).getWidth() + 4.0f;
-                float nameBoxW = nameIconW + 6.0f + displayW + teamW + decodedW + padding * 2;
+                float nameBoxW = nameIconW + 6.0f + displayW + teamW + padding * 2;
                 float healthIconW = this.iconFont.getBounds(healthIcon).getWidth();
                 float healthTextW = this.nameFont.getBounds(healthText).getWidth();
                 float healthBoxW = healthIconW + 2.0f + healthTextW + padding * 2;
@@ -227,10 +224,6 @@ public class OpalNameTag extends NameTagStyle {
                     this.paint.setColor(COLOR_GREEN);
                     ctx.drawString(teamSuffix, nameCursor, textBaseline - 1.0f, this.mainFont, this.paint);
                     nameCursor += teamW;
-                }
-                if (!decodedSuffix.isEmpty()) {
-                    this.paint.setColor(COLOR_AQUA);
-                    ctx.drawString(decodedSuffix, nameCursor, textBaseline - 1.0f, this.mainFont, this.paint);
                 }
                 cursorX += nameBoxW + gap;
                 this.paint.setColor(PADDING);

@@ -136,10 +136,6 @@ public class ZenClient extends ClientBase {
                 && mc.player.tickCount > 5;
     }
 
-    public static boolean isOwner(String username) {
-        return true;
-    }
-
     public void shutdown() {
         isReady = false;
         if (this.configManager != null) {

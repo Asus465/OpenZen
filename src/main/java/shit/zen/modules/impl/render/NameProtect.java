@@ -74,7 +74,7 @@ extends Module {
         String string = mc.player.getName().getString();
         for (PlayerInfo playerInfo : arrayList) {
             String string2 = playerInfo.getProfile().getName();
-            if (string2.equals(string) || ZenClient.isOwner(string2)) continue;
+            if (string2.equals(string)) continue;
             arrayList2.add(string2);
         }
         if (arrayList2.isEmpty()) {
