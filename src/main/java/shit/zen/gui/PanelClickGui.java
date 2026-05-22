@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import javax.annotation.Nonnull;
+
+import lombok.Getter;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -63,8 +65,11 @@ extends Screen {
     private float openProgress = 0.0f;
     private float currentScale = 1.0f;
     private final ProfileWidget profileWidget;
+    @Getter
     private final CategoryBar categoryBar;
+    @Getter
     private final ModuleListPanel moduleListPanel;
+    @Getter
     private final SettingsPanel settingsPanel;
     public final KeybindOverlay keybindOverlay = new KeybindOverlay();
     private final ScaleSwitchOverlay scaleSwitchOverlay = new ScaleSwitchOverlay();
@@ -121,15 +126,14 @@ extends Screen {
     }
 
     public void render(@Nonnull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        float eased;
         LerpUtil.update();
         this.updateOpenState();
         if (this.currentScaleSwitchState == PanelClickGui.OpenState.CLOSED && this.openProgress <= 0.0f) {
             return;
         }
-        float dup = eased = this.easeOutCubic(this.openProgress);
+        float eased = this.easeOutCubic(this.openProgress);
         float scaleFactor = 0.98f + 0.02f * eased;
-        guiGraphics.fill(0, 0, this.width, this.height, new Color(0, 0, 0, (int)(80.0f * dup)).getRGB());
+        guiGraphics.fill(0, 0, this.width, this.height, new Color(0, 0, 0, (int)(80.0f * eased)).getRGB());
         this.updateScaleSwitchState();
         int centerX = this.width / 2;
         int centerY = this.height / 2;
@@ -137,25 +141,22 @@ extends Screen {
         guiGraphics.pose().translate((float)centerX, (float)centerY, 0.0f);
         guiGraphics.pose().scale(scaleFactor, scaleFactor, 1.0f);
         guiGraphics.pose().translate((float)(-centerX), (float)(-centerY), 0.0f);
-        float overlayScale = this.currentOpenState == PanelClickGui.ScaleSwitchState.FADING_OUT || this.currentOpenState == PanelClickGui.ScaleSwitchState.WAITING ? this.targetScale : this.currentScale;
+        float overlayScale = this.currentOpenState == PanelClickGui.ScaleSwitchState.FADING_OUT
+                || this.currentOpenState == PanelClickGui.ScaleSwitchState.WAITING
+                ? this.targetScale : this.currentScale;
         int panelWidth = (int)(600.0f * this.currentScale);
         int panelHeight = (int)(400.0f * this.currentScale);
         int panelX = centerX - panelWidth / 2;
         int panelY = centerY - panelHeight / 2;
-        float effectiveAlpha = this.panelAlpha * dup;
+        float effectiveAlpha = this.panelAlpha * eased;
         if (effectiveAlpha > 0.005f) {
-            final float finalAlpha = effectiveAlpha;
-            final int fPanelX = panelX;
-            final int fPanelY = panelY;
-            Renderer.render(guiGraphics, drawContext -> {
-                this.drawPanelGlow(guiGraphics, fPanelX, fPanelY, partialTicks, finalAlpha);
-                this.categoryBar.render(guiGraphics, fPanelX, fPanelY, mouseX, mouseY, this.currentScale, finalAlpha);
-                this.moduleListPanel.render(guiGraphics, fPanelX, fPanelY, mouseX, mouseY, this.getSelectedCategory(), this.currentScale, finalAlpha);
-                this.settingsPanel.render(guiGraphics, fPanelX, fPanelY, mouseX, mouseY, this.moduleListPanel.getHoveredModule(), this.currentScale, finalAlpha);
-                this.profileWidget.render(guiGraphics, fPanelX, fPanelY, mouseX, mouseY, this.currentScale, finalAlpha);
-                this.drawSearchBar(guiGraphics, fPanelX, fPanelY, mouseX, mouseY, finalAlpha);
-                this.drawToasts(guiGraphics, fPanelX, fPanelY, finalAlpha);
-            });
+            this.drawPanelGlow(guiGraphics, panelX, panelY, partialTicks, effectiveAlpha);
+            this.categoryBar.render(guiGraphics, panelX, panelY, mouseX, mouseY, this.currentScale, effectiveAlpha);
+            this.moduleListPanel.render(guiGraphics, panelX, panelY, mouseX, mouseY, this.getSelectedCategory(), this.currentScale, effectiveAlpha);
+            this.settingsPanel.render(guiGraphics, panelX, panelY, mouseX, mouseY, this.moduleListPanel.getHoveredModule(), this.currentScale, effectiveAlpha);
+            this.profileWidget.render(guiGraphics, panelX, panelY, mouseX, mouseY, this.currentScale, effectiveAlpha);
+            this.drawSearchBar(guiGraphics, panelX, panelY, mouseX, mouseY, effectiveAlpha);
+            this.drawToasts(guiGraphics, panelX, panelY, effectiveAlpha);
         }
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
         guiGraphics.pose().popPose();
@@ -167,22 +168,25 @@ extends Screen {
         switch (this.currentOpenState) {
             case FADING_OUT: {
                 this.panelAlpha = LerpUtil.lerp(this.panelAlpha, 0.0f, 0.08f);
-                if (!(this.panelAlpha <= 0.0f)) break;
-                this.currentOpenState = PanelClickGui.ScaleSwitchState.WAITING;
-                this.scaleWaitStart = System.currentTimeMillis();
+                if (this.panelAlpha <= 0.0f) {
+                    this.currentOpenState = PanelClickGui.ScaleSwitchState.WAITING;
+                    this.scaleWaitStart = System.currentTimeMillis();
+                }
                 break;
             }
             case WAITING: {
-                if (System.currentTimeMillis() - this.scaleWaitStart <= 3000L) break;
-                this.currentScale = this.targetScale;
-                this.currentOpenState = PanelClickGui.ScaleSwitchState.FADING_IN;
-                this.scaleSwitchOverlay.hide();
+                if (System.currentTimeMillis() - this.scaleWaitStart > 3000L) {
+                    this.currentScale = this.targetScale;
+                    this.currentOpenState = PanelClickGui.ScaleSwitchState.FADING_IN;
+                    this.scaleSwitchOverlay.hide();
+                }
                 break;
             }
             case FADING_IN: {
                 this.panelAlpha = LerpUtil.lerp(this.panelAlpha, 1.0f, 0.08f);
-                if (!(this.panelAlpha >= 1.0f) || !this.scaleSwitchOverlay.isFullyHidden()) break;
-                this.currentOpenState = PanelClickGui.ScaleSwitchState.IDLE;
+                if (this.panelAlpha >= 1.0f && this.scaleSwitchOverlay.isFullyHidden()) {
+                    this.currentOpenState = PanelClickGui.ScaleSwitchState.IDLE;
+                }
             }
         }
     }
@@ -190,13 +194,10 @@ extends Screen {
     private void drawPanelGlow(GuiGraphics guiGraphics, int panelX, int panelY, float partialTicks, float alpha) {
         int panelWidth = (int)(600.0f * this.currentScale);
         int panelHeight = (int)(400.0f * this.currentScale);
-        float radius = 12.0f * this.currentScale;
-        RenderUtil.drawBlurredRect(guiGraphics.pose(), panelX, panelY, panelWidth, panelHeight, radius, 8.0f, alpha, 0);
-        TextGlow.drawBackground(guiGraphics.pose(), panelX, panelY, panelWidth, panelHeight, radius, alpha);
+        TextGlow.drawBackground(guiGraphics.pose(), panelX, panelY, panelWidth, panelHeight, 12.0f * this.currentScale, alpha);
     }
 
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        boolean overSearch;
         if (this.openProgress < 1.0f) {
             return true;
         }
@@ -219,7 +220,8 @@ extends Screen {
         int searchHeight = (int)(20.0f * this.currentScale);
         int searchX = panelX + (panelWidth - searchWidth) / 2;
         int searchY = panelY + panelHeight + (int)(15.0f * this.currentScale);
-        boolean dup = overSearch = mouseX >= (double)searchX && mouseX <= (double)(searchX + searchWidth) && mouseY >= (double)searchY && mouseY <= (double)(searchY + searchHeight);
+        boolean overSearch = mouseX >= (double)searchX && mouseX <= (double)(searchX + searchWidth)
+                && mouseY >= (double)searchY && mouseY <= (double)(searchY + searchHeight);
         if (overSearch) {
             if (!this.searchActive) {
                 this.searchActive = true;
@@ -233,7 +235,7 @@ extends Screen {
         this.searchFocused = false;
         boolean handled = false;
         if (button == 0 || button == 1 || button == 2) {
-            if (!handled && button == 0 && this.categoryBar.onMouseClick(panelX, panelY, (int)mouseX, (int)mouseY, this.currentScale)) {
+            if (button == 0 && this.categoryBar.onMouseClick(panelX, panelY, (int)mouseX, (int)mouseY, this.currentScale)) {
                 if (this.searchActive) {
                     this.searchActive = false;
                     this.searchFocused = false;
@@ -273,8 +275,8 @@ extends Screen {
             return true;
         }
         int centerX = this.width / 2;
-        int panelX = centerX - (int)(600.0f * this.currentScale) / 2;
         int centerY = this.height / 2;
+        int panelX = centerX - (int)(600.0f * this.currentScale) / 2;
         int panelY = centerY - (int)(400.0f * this.currentScale) / 2;
         if (this.moduleListPanel.isMouseOverPanel(panelX, panelY, (int)mouseX, (int)mouseY, this.currentScale)) {
             this.moduleListPanel.onScroll(scrollDelta, this.currentScale);
@@ -357,18 +359,6 @@ extends Screen {
         return this.categoryBar.getSelectedCategory();
     }
 
-    public CategoryBar getCategoryBar() {
-        return this.categoryBar;
-    }
-
-    public ModuleListPanel getModuleListPanel() {
-        return this.moduleListPanel;
-    }
-
-    public SettingsPanel getSettingsPanel() {
-        return this.settingsPanel;
-    }
-
     private void drawSearchBar(GuiGraphics guiGraphics, int panelX, int panelY, int mouseX, int mouseY, float alpha) {
         try {
             int panelWidth = (int)(600.0f * this.currentScale);
@@ -377,39 +367,42 @@ extends Screen {
             int searchHeight = (int)(20.0f * this.currentScale);
             int searchX = panelX + (panelWidth - searchWidth) / 2;
             int searchY = panelY + panelHeight + (int)(15.0f * this.currentScale);
-            float searchRadius = 8.0f * this.currentScale;
-            RenderUtil.drawBlurredRect(guiGraphics.pose(), searchX, searchY, searchWidth, searchHeight, searchRadius, 8.0f, alpha, 0);
-            TextGlow.drawBackground(guiGraphics.pose(), searchX, searchY, searchWidth, searchHeight, searchRadius, alpha);
-            Renderer.renderConsumer((drawContext -> {
+            TextGlow.drawBackground(guiGraphics.pose(), searchX, searchY, searchWidth, searchHeight, 8.0f * this.currentScale, alpha);
+            Renderer.renderConsumer(drawContext -> {
                 FontRenderer iconFont = FontPresets.materialIcons(20.0f * this.currentScale);
                 String iconText = "\uE8B6";
-                float iconX = (float)searchX + 12.0f * this.currentScale;
-                float iconY = (float)searchY + (float)searchHeight / 2.0f + iconFont.getMetrics().capHeight() / 2.0f - 12.0f * this.currentScale;
+                float iconX = searchX + 12.0f * this.currentScale;
+                float iconY = searchY + searchHeight / 2.0f + iconFont.getMetrics().capHeight() / 2.0f - 12.0f * this.currentScale + 10F;
                 int iconColor = new Color(255, 255, 255, (int)(180.0f * alpha)).getRGB();
-                TextGlow.drawGlowText(iconText, iconX, iconY, iconFont, -2236963, iconColor, 12.0f * this.currentScale);
+                TextGlow.drawGlowText(iconText, iconX, iconY, iconFont, 0xffdddddd, iconColor, 12.0f * this.currentScale);
                 FontRenderer queryFont = FontPresets.axiformaRegular(16.0f * this.currentScale);
-                if (this.searchActive || !this.searchQuery.isEmpty()) {
-                    float queryX = (float)searchX + 35.0f * this.currentScale;
-                    float queryY = (float)searchY + (float)searchHeight / 2.0f + queryFont.getMetrics().capHeight() / 2.0f - 9.0f * this.currentScale;
+                if (!this.searchActive && this.searchQuery.isEmpty()) {
+                    FontRenderer placeholderFont = FontPresets.axiformaBold(14.0f * this.currentScale);
+                    String placeholder = "search";
+                    float placeholderWidth = GlHelper.getStringWidth(placeholder, placeholderFont);
+                    float placeholderX = searchX + (searchWidth - placeholderWidth) / 2.0f;
+                    float placeholderY = searchY + searchHeight / 2.0f + placeholderFont.getMetrics().capHeight() / 2.0f - 8.0f * this.currentScale + 5F;
+                    TextGlow.drawGlowText(placeholder, placeholderX, placeholderY, placeholderFont, 0xffcccccc,
+                            new Color(255, 255, 255, (int)(130.0f * alpha)).getRGB(), 10.0f * this.currentScale);
+                } else {
+                    float queryX = searchX + 35.0f * this.currentScale;
+                    float queryY = searchY + searchHeight / 2.0f + queryFont.getMetrics().capHeight() / 2.0f - 9.0f * this.currentScale + 6F;
                     int queryColor = new Color(255, 255, 255, (int)(120.0f * alpha)).getRGB();
                     TextGlow.drawGlowText(this.searchQuery, queryX, queryY, queryFont, -1, queryColor, 8.0f * this.currentScale);
                     if (this.searchFocused) {
                         long sinceCursor = System.currentTimeMillis() - this.searchCursorTime;
-                        float blinkAmount = (float)(Math.sin((double)sinceCursor / 200.0) * 0.5 + 0.5);
+                        float blinkAmount = (float)(Math.sin(sinceCursor / 200.0) * 0.5 + 0.5);
                         int cursorColor = (int)(blinkAmount * alpha * 255.0f) << 24 | 0xFFFFFF;
                         float cursorX = queryX + GlHelper.getStringWidth(this.searchQuery, queryFont) + 2.0f * this.currentScale;
                         float cursorHeight = queryFont.getMetrics().capHeight();
-                        RenderUtil.drawFilledRect(guiGraphics.pose(), cursorX, queryY - cursorHeight + 11.0f * this.currentScale, this.currentScale, cursorHeight - 3.0f * this.currentScale, cursorColor);
+                        RenderUtil.drawFilledRect(guiGraphics.pose(), cursorX,
+                                queryY - cursorHeight + 3.0f * this.currentScale,
+                                this.currentScale,
+                                cursorHeight + 2 * this.currentScale,
+                                cursorColor);
                     }
-                } else {
-                    FontRenderer placeholderFont = FontPresets.axiformaBold(14.0f * this.currentScale);
-                    String placeholder = "search";
-                    float placeholderWidth = GlHelper.getStringWidth(placeholder, placeholderFont);
-                    float placeholderX = (float)searchX + ((float)searchWidth - placeholderWidth) / 2.0f;
-                    float placeholderY = (float)searchY + (float)searchHeight / 2.0f + placeholderFont.getMetrics().capHeight() / 2.0f - 8.0f * this.currentScale;
-                    TextGlow.drawGlowText(placeholder, placeholderX, placeholderY, placeholderFont, -3355444, new Color(255, 255, 255, (int)(130.0f * alpha)).getRGB(), 10.0f * this.currentScale);
                 }
-            }));
+            });
         } catch (Exception exception) {
             // empty catch block
         }
@@ -431,7 +424,7 @@ extends Screen {
             return;
         }
         try {
-            Renderer.renderConsumer((drawContext -> {
+            Renderer.renderConsumer(drawContext -> {
                 FontRenderer toastFont = FontPresets.axiformaBold(18.0f * this.currentScale);
                 for (PanelClickGui.ToastEntry toast : this.toasts) {
                     long elapsed = System.currentTimeMillis() - toast.createdAt;
@@ -458,13 +451,9 @@ extends Screen {
                     int glowColor = glowAlpha << 24 | 0xFFFFFF;
                     TextGlow.drawGlowText(toast.message, toastX, toastY + 6.0f * this.currentScale, toastFont, textColor, glowColor, 8.0f * this.currentScale);
                 }
-            }));
+            });
         } catch (Exception exception) {
             // empty catch block
         }
-    }
-
-    static {
-        PanelClickGui panelClickGui = new PanelClickGui();
     }
 }

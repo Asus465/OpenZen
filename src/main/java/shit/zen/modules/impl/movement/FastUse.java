@@ -49,7 +49,7 @@ import shit.zen.utils.misc.Triple;
 import shit.zen.utils.misc.TripleProvider;
 import shit.zen.event.EventTarget;
 
-public class FastUse extends Module implements TripleProvider {
+public class FastUse extends Module {
     public static FastUse INSTANCE;
     public static boolean releaseItemSent;
 
@@ -270,14 +270,6 @@ public class FastUse extends Module implements TripleProvider {
                 }
             }
         }
-    }
-
-    @Override
-    public Triple<String, String, Boolean> getTriple() {
-        if (this.isEnabled()) {
-            return new Triple<>(this.getName(), "", true);
-        }
-        return null;
     }
 
     private void handleGrimSlowdown(SlowdownEvent event, ItemStack stack) {

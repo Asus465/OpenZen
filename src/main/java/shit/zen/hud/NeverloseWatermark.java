@@ -38,12 +38,12 @@ public class NeverloseWatermark {
         float blurRadius = 15.0f;
         float zenWidth = this.measureText("ZEN", this.boldFont);
         currentX += zenWidth + gap;
-        currentX = this.renderSectionLegacy(render2DEvent.poseStack(), currentX, y, this.getServerName(), this.smallFont, "", cornerRadius, blurRadius, gap);
-        currentX = this.renderSectionLegacy(render2DEvent.poseStack(), currentX, y, this.getPingText(), this.regularFont, "", cornerRadius, blurRadius, gap);
-        currentX = this.renderSectionLegacy(render2DEvent.poseStack(), currentX, y, this.getFpsText(), this.regularFont, "", cornerRadius, blurRadius, gap);
-        currentX = this.renderSectionLegacy(render2DEvent.poseStack(), currentX, y, this.getTimeText(), this.regularFont, "", cornerRadius, blurRadius, gap);
-        currentX = this.renderSectionLegacy(render2DEvent.poseStack(), currentX, y, this.getCpsText(), this.regularFont, "", cornerRadius, blurRadius, gap);
-        this.renderSectionLegacy(render2DEvent.poseStack(), currentX, y, this.getCoordText(), this.regularFont, "", cornerRadius, blurRadius, gap);
+        currentX = this.renderSectionLegacy(render2DEvent.poseStack(), currentX, y, this.getServerName(), this.smallFont, "\uE8A6", cornerRadius, blurRadius, gap);
+        currentX = this.renderSectionLegacy(render2DEvent.poseStack(), currentX, y, this.getPingText(), this.regularFont, "\uE8B8", cornerRadius, blurRadius, gap);
+        currentX = this.renderSectionLegacy(render2DEvent.poseStack(), currentX, y, this.getFpsText(), this.regularFont, "\uEBCA", cornerRadius, blurRadius, gap);
+        currentX = this.renderSectionLegacy(render2DEvent.poseStack(), currentX, y, this.getTimeText(), this.regularFont, "\uEB66", cornerRadius, blurRadius, gap);
+        currentX = this.renderSectionLegacy(render2DEvent.poseStack(), currentX, y, this.getCpsText(), this.regularFont, "\uE0C8", cornerRadius, blurRadius, gap);
+        this.renderSectionLegacy(render2DEvent.poseStack(), currentX, y, this.getCoordText(), this.regularFont, "\uE192", cornerRadius, blurRadius, gap);
     }
 
     private float renderSectionLegacy(PoseStack poseStack, float x, float y, String text, FontRenderer fontRenderer, String icon, float cornerRadius, float blurRadius, float gap) {
@@ -61,12 +61,12 @@ public class NeverloseWatermark {
         float gap = 6.0f;
         float cornerRadius = 4.5f;
         currentX = this.renderSection(glRenderEvent.drawContext(), currentX, y, "ZEN", this.boldFont, cornerRadius, gap);
-        currentX = this.renderSectionWithSub(glRenderEvent.drawContext(), currentX, y, this.getServerName(), this.smallFont, "", cornerRadius, gap);
-        currentX = this.renderSectionWithSub(glRenderEvent.drawContext(), currentX, y, this.getPingText(), this.regularFont, "", cornerRadius, gap);
-        currentX = this.renderSectionWithSub(glRenderEvent.drawContext(), currentX, y, this.getFpsText(), this.regularFont, "", cornerRadius, gap);
-        currentX = this.renderSectionWithSub(glRenderEvent.drawContext(), currentX, y, this.getTimeText(), this.regularFont, "", cornerRadius, gap);
-        currentX = this.renderSectionWithSub(glRenderEvent.drawContext(), currentX, y, this.getCpsText(), this.regularFont, "", cornerRadius, gap);
-        this.renderSectionWithSub(glRenderEvent.drawContext(), currentX, y, this.getCoordText(), this.regularFont, "", cornerRadius, gap);
+        currentX = this.renderSectionWithSub(glRenderEvent.drawContext(), currentX, y, this.getServerName(), this.smallFont, "", cornerRadius, gap);
+        currentX = this.renderSectionWithSub(glRenderEvent.drawContext(), currentX, y, this.getPingText(), this.regularFont, "", cornerRadius, gap);
+        currentX = this.renderSectionWithSub(glRenderEvent.drawContext(), currentX, y, this.getFpsText(), this.regularFont, "", cornerRadius, gap);
+        currentX = this.renderSectionWithSub(glRenderEvent.drawContext(), currentX, y, this.getTimeText(), this.regularFont, "", cornerRadius, gap);
+        currentX = this.renderSectionWithSub(glRenderEvent.drawContext(), currentX, y, this.getCpsText(), this.regularFont, "", cornerRadius, gap);
+        this.renderSectionWithSub(glRenderEvent.drawContext(), currentX, y, this.getCoordText(), this.regularFont, "", cornerRadius, gap);
     }
 
     private float renderSection(DrawContext drawContext, float x, float y, String text, FontRenderer fontRenderer, float cornerRadius, float gap) {

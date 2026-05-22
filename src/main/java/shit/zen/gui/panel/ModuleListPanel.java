@@ -227,7 +227,10 @@ extends ClientBase {
         DrawContext drawContext = GlHelper.getCanvas();
         drawContext.save();
         drawContext.clip(Rectangle.ofXYWH(panelX, (float)panelY + headerHeight, panelWidth, (float)panelHeight - headerHeight));
-        int rowY = panelY + (int)headerHeight + (int)(2.0f * scale);
+        // Recaf used +2*scale here, but the deobfuscated GlyphMetrics flips the ascent sign so
+        // GlHelper.drawText draws ~7*scale ABOVE drawY — at +2 the first row's text top slips out
+        // of the clip. +8 leaves ~1*scale headroom under the clip top.
+        int rowY = panelY + (int)headerHeight + (int)(8.0f * scale);
         if (modules != null) {
             this.totalContentHeight = modules.size() * Math.round(18.0f * scale);
             for (Module module : modules) {
@@ -329,7 +332,9 @@ extends ClientBase {
         if (!this.isMouseOverPanel(originX, originY, mouseX, mouseY, scale)) {
             return false;
         }
-        int rowY = panelY + headerHeight + Math.round(2.0f * scale);
+        // Keep in sync with renderModuleList's rowY offset (+8*scale) so click hit-boxes match
+        // the visible row positions.
+        int rowY = panelY + headerHeight + Math.round(8.0f * scale);
         for (Module module : modules) {
             int adjustedRowY;
             if (this.isMouseOverModule(module, panelX, adjustedRowY = (int)((float)rowY - this.scrollOffset), mouseX, mouseY, scale)) {

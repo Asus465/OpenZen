@@ -15,8 +15,6 @@
 ![Open Zen ClickGUI](img/screenshot.png)
 
 ## TODO
- - 客户端的Shader渲染明显还有很多问题。
- - 部分UI错位。
  - 直接构建为热注入DLL。
  - 你来提出Issue，我来解决。
 
