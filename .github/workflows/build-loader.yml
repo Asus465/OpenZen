@@ -2,7 +2,7 @@ name: Build Loader
 
 on:
   push:
-    branches: [master]
+分支: [master]
     # Only build when something that actually affects the output changed.
     # README / docs / issue templates / .gitignore / .claude/ get to skip.
     # Use workflow_dispatch (below) to force a run for anything else.
