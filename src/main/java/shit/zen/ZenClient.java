@@ -12,6 +12,8 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.Mod;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import shit.zen.event.EventBus;
 import shit.zen.event.EventTarget;
 import shit.zen.event.impl.TickEvent;
@@ -22,6 +24,7 @@ import shit.zen.manager.HudManager;
 import shit.zen.manager.LagManager;
 import shit.zen.manager.ModuleManager;
 import shit.zen.manager.TargetManager;
+import shit.zen.patch.BlockOcclusionCachePatch;
 import shit.zen.patch.BlockPatch;
 import shit.zen.patch.ChatScreenPatch;
 import shit.zen.patch.ClientLevelPatch;
@@ -209,6 +212,13 @@ public class ZenClient extends ClientBase {
         PatchRegistry.register(ItemPatch.class);
         PatchRegistry.register(PlayerTabOverlayPatch.class);
         PatchRegistry.register(FriendlyByteBufPatch.class);
+
+        // Compatibility patch for Embeddium/Sodium's BlockOcclusionCache.
+        // Always registered so the transformer can catch the class when it
+        // first loads. We must NOT use Class.forName() here — that would
+        // load the class before our transformer is installed, preventing
+        // the patch from ever being applied.
+        PatchRegistry.register(BlockOcclusionCachePatch.class);
     }
 
     public static Minecraft getMcInstance() {

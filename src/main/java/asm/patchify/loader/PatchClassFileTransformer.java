@@ -42,7 +42,12 @@ public final class PatchClassFileTransformer implements ClassFileTransformer {
         for (Class<?> patchClass : PatchRegistry.getPatches()) {
             Patch patch = patchClass.getAnnotation(Patch.class);
             if (patch == null) continue;
-            String internalName = patch.value().getName().replace('.', '/');
+            String internalName;
+            if (!patch.className().isEmpty()) {
+                internalName = patch.className().replace('.', '/');
+            } else {
+                internalName = patch.value().getName().replace('.', '/');
+            }
             patchesByTarget.computeIfAbsent(internalName, k -> new ArrayList<>()).add(patchClass);
         }
     }

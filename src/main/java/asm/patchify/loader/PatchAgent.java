@@ -72,6 +72,29 @@ public final class PatchAgent {
         for (Class<?> patch : PatchRegistry.getPatches()) {
             asm.patchify.annotation.Patch ann = patch.getAnnotation(asm.patchify.annotation.Patch.class);
             if (ann == null) continue;
+            if (!ann.className().isEmpty()) {
+                // className-based patches target optional mod classes.
+                // Check if the class is already loaded via Instrumentation.
+                boolean found = false;
+                for (Class<?> loaded : inst.getAllLoadedClasses()) {
+                    if (loaded.getName().equals(ann.className())) {
+                        LOGGER.debug("Found already-loaded target {} for className-based patch {}",
+                                ann.className(), patch.getName());
+                        if (inst.isModifiableClass(loaded)) {
+                            retransform.add(loaded);
+                        } else {
+                            LOGGER.warn("Cannot retransform unmodifiable target {}", ann.className());
+                        }
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    LOGGER.debug("Target {} not yet loaded — transformer will catch it at class-load time",
+                            ann.className());
+                }
+                continue;
+            }
             Class<?> target;
             try {
                 target = ann.value();
